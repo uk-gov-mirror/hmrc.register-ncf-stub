@@ -1,11 +1,27 @@
 
 # register-ncf-stub
 
-This is a placeholder README.md for a new repository
 
 ### License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
+
+### Source code formatting
+
+We use [Scalafmt](https://scalameta.org/scalafmt/) to format our code base.
+
+In case of contribution and you are an IntelliJ user, you should install the [scalafmt plugin](https://plugins.jetbrains.com/plugin/8236-scalafmt), select Scalafmt as **Formatter** and flag the checkbox "**Reformat on file save**" (_Settings -> Editor -> Code Style -> Scala).
+
+You can format your code by using the _alt+shift+L_ shortcut
+
+Format files under app folder
+```
+sbt scalafmt
+```
+Format files under test folder
+```
+sbt test:scalafmt
+```
 
 ## Production endpoints
 

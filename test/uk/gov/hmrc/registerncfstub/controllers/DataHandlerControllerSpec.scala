@@ -21,12 +21,11 @@ import org.scalatest.{Matchers, WordSpec}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status
 import play.api.libs.json.Json
-import play.api.test.{FakeRequest,FakeHeaders, Helpers}
-import play.api.{Mode, Configuration, Environment}
+import play.api.test.{FakeHeaders, FakeRequest, Helpers}
+import play.api.{Configuration, Environment, Mode}
 import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.registerncfstub.config.AppConfig
-
 
 class DataHandlerControllerSpec extends WordSpec with UnitSpec with Matchers with GuiceOneAppPerSuite {
 
@@ -44,10 +43,11 @@ class DataHandlerControllerSpec extends WordSpec with UnitSpec with Matchers wit
       val requestData = """ { "MRN": "19GB0000601001FBD8", "Office":"GB000060" }"""
 
       val expectedJson = Json.parse("""{ "MRN": "19GB0000601001FBD8", "ResponseCode":0 }""")
-      val fakeRequest = FakeRequest(method = "POST", uri = "", headers = FakeHeaders(Seq("Content-type" -> "application/json")), body = Json.parse(requestData))
+      val fakeRequest =
+        FakeRequest(method = "POST", uri = "", headers = FakeHeaders(Seq("Content-type" -> "application/json")), body = Json.parse(requestData))
       val result = await(controller.receiveNcfData(fakeRequest))
       status(result) shouldBe Status.OK
-      expectedJson shouldBe jsonBodyOf(result)
+      expectedJson   shouldBe jsonBodyOf(result)
 
     }
 
@@ -55,10 +55,11 @@ class DataHandlerControllerSpec extends WordSpec with UnitSpec with Matchers wit
       val requestData = """ { "MRN": "19GB0000601001F", "Office":"GB000060" }"""
 
       val expectedJson = Json.parse("""{"MRN":"19GB0000601001F","ResponseCode":0}""")
-      val fakeRequest = FakeRequest(method = "POST", uri = "", headers = FakeHeaders(Seq("Content-type" -> "application/json")), body = Json.parse(requestData))
+      val fakeRequest =
+        FakeRequest(method = "POST", uri = "", headers = FakeHeaders(Seq("Content-type" -> "application/json")), body = Json.parse(requestData))
       val result = await(controller.receiveNcfData(fakeRequest))
       status(result) shouldBe Status.OK
-      expectedJson shouldBe jsonBodyOf(result)
+      expectedJson   shouldBe jsonBodyOf(result)
 
     }
 
@@ -66,13 +67,13 @@ class DataHandlerControllerSpec extends WordSpec with UnitSpec with Matchers wit
       val requestData = """ { "MRN": "19GB0000601001FBD8" }"""
 
       val expectedJson = Json.parse("""{"ResponseCode":1,"ErrorDescription":"Parsing Error: Request Message could not be read"}""")
-      val fakeRequest = FakeRequest(method = "POST", uri = "", headers = FakeHeaders(Seq("Content-type" -> "application/json")), body = Json.parse(requestData))
+      val fakeRequest =
+        FakeRequest(method = "POST", uri = "", headers = FakeHeaders(Seq("Content-type" -> "application/json")), body = Json.parse(requestData))
       val result = await(controller.receiveNcfData(fakeRequest))
       status(result) shouldBe Status.OK
-      expectedJson shouldBe jsonBodyOf(result)
+      expectedJson   shouldBe jsonBodyOf(result)
 
     }
-
 
   }
 }
