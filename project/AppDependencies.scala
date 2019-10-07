@@ -16,7 +16,7 @@ object AppDependencies {
     "com.typesafe.play"       %% "play-test"                % current                 % "test",
     "org.pegdown"             %  "pegdown"                  % "1.6.0"                 % "test, it",
     "org.scalatestplus.play"  %% "scalatestplus-play"       % "3.1.2"                 % "test, it",
-    "uk.gov.hmrc"             %% "hmrctest"                 % "3.1.0"                 % "test, it"
+    "uk.gov.hmrc"             %% "hmrctest"                 % "3.9.0-play-26"         % "test, it"
   )
 
 }
