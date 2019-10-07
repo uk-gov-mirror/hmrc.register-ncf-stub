@@ -6,46 +6,77 @@
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
 
-### Source code formatting
+## Endpoints
 
-We use [Scalafmt](https://scalameta.org/scalafmt/) to format our code base.
+```POST /ctc/registerncf/v1```
 
-In case of contribution and you are an IntelliJ user, you should install the [scalafmt plugin](https://plugins.jetbrains.com/plugin/8236-scalafmt), select Scalafmt as **Formatter** and flag the checkbox "**Reformat on file save**" (_Settings -> Editor -> Code Style -> Scala).
+Returns the result of the register NCF process in form of the MRN and a response code, along with an error description if there is an error.
 
-You can format your code by using the _alt+shift+L_ shortcut
-
-Format files under app folder
+####Happy path:
+To trigger the happy path, ensure you provide a valid request body with an MRN that ends in '00'.
 ```
-sbt scalafmt
-```
-Format files under test folder
-```
-sbt test:scalafmt
+Request Body example:
+{
+    "MRN": "18GB0000601001EB00",
+    "Office":"GB000011"
+}
 ```
 
-## Production endpoints
+> Response status: 200
 
-```POST  /register-ncf-stub/ncfdata/submit```
+```
+Response body example:
+{
+    "MRN": "18GB0000601001EB00",
+    "ResponseCode": 0
+}
+```
 
-Returns the response code with MRN and description.
+####Unhappy path:
+To trigger the unhappy paths, ensure you provide a valid request body with an MRN that ends in any of the following 2 digits for each scenario.
 
 ```
 Request Body example:
 {
-"MRN": "18GB0000601001EBD1",
-"Office":"GB000011"
+    "MRN": "18GB0000601001EB10",
+    "Office":"GB000011"
 }
 ```
 
-> Response statuses: 200
+> Response status: 400
 
 ```
-200
 Response body example:
 {
-  "MRN": "18IT02110010006A10",
-  "ResponseCode": 7,
-  "ErrorDescription": "Guarantee not valid"
+    "MRN": "18GB0000601001EB10",
+    "ResponseCode": -1,
+    "ErrorDescription": "Technical Error occurred"
 }
+```
+
+Below are the different unhappy path scenarios:
+
+| *Scenario* | *Digits* |
+|--------|----|
+| Technical error | 10 |
+| Parsing error | 01 |
+| Invalid MRN | 02 |
+| Unknown MRN | 03 |
+| Invalid state at office of destination | 04 |
+| Invalid state at office of transit | 05 |
+| Invalid customs office | 06 |
+| Office of transit does not belong to country | 07 |
+
+###EIS 5xx error:
+In the case where there is a problem with EIS, we will receive a 5xx response from them. In order to trigger this scenario, supply an MRN with '50' at the end.
 
 ```
+Request Body example:
+{
+    "MRN": "18GB0000601001EB50",
+    "Office":"GB000011"
+}
+```
+
+> Response status: 500
+
