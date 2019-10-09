@@ -34,6 +34,7 @@ class RegisterNcfService @Inject()(appConfig: AppConfig) {
       case "05" => InvalidStateOot(ncfRequestData.MRN)
       case "06" => InvalidCustomsOffice(ncfRequestData.MRN)
       case "07" => OotNotForCountry(ncfRequestData.MRN)
+      case "40" => SchemaValidationError
       case "50" => Eis5xxError
       case _    => CompletedSuccessfully(ncfRequestData.MRN)
     }

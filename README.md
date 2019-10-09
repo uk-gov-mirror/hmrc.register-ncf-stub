@@ -59,6 +59,7 @@ Below are the different unhappy path scenarios:
 | *Scenario* | *Digits* |
 |--------|----|
 | Technical error | 10 |
+| Schema validation error | 40 |
 | Parsing error | 01 |
 | Invalid MRN | 02 |
 | Unknown MRN | 03 |

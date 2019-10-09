@@ -27,6 +27,6 @@ case class UnknownMrn(mrn:           String, responseCode: Int = 3, errorDescrip
 case class InvalidStateOod(mrn:      String, responseCode: Int = 4, errorDescription: String = "Invalid State at Office of Destination") extends NcfResult
 case class InvalidStateOot(mrn:      String, responseCode: Int = 5, errorDescription: String = "Invalid State at Office of Transit") extends NcfResult
 case class InvalidCustomsOffice(mrn: String, responseCode: Int = 6, errorDescription: String = "Invalid Customs Office") extends NcfResult
-case class OotNotForCountry(mrn:     String, responseCode: Int = 7, errorDescription: String = "Office of Transit does not belong to country")
-    extends NcfResult
+case class OotNotForCountry(mrn:     String, responseCode: Int = 7, errorDescription: String = "Office of Transit does not belong to country") extends NcfResult
+case object SchemaValidationError extends NcfResult
 case object Eis5xxError extends NcfResult
