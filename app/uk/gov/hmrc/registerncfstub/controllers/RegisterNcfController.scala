@@ -20,8 +20,8 @@ import java.time.Instant
 import java.util.UUID
 
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json._
 import play.api.Logger
+import play.api.libs.json._
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import uk.gov.hmrc.registerncfstub.config.AppConfig
@@ -32,62 +32,69 @@ class RegisterNcfController @Inject()(appConfig: AppConfig, registerNcfService: 
     extends BackendController(cc) {
 
   def receiveNcfData: Action[JsValue] = Action(parse.json) { implicit request =>
+    implicit val correlationId: String = request.headers.get("X-Correlation-ID").getOrElse("-")
+
     request.body.validate[NcfRequestData] match {
       case JsSuccess(t, _) =>
         registerNcfService.processRegisterNcfRequest(t) match {
-          case CompletedSuccessfully(mrn, responseCode)   =>
+          case CompletedSuccessfully(mrn, responseCode) =>
             Logger.info(s"NCF returning response code $responseCode with HTTP status code 200 for MRN $mrn")
-            Ok(Json.toJson(NcfResponse(mrn, responseCode, None)))
-          case TechnicalError(mrn, responseCode, e)       =>
+            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, None))))
+          case TechnicalError(mrn, responseCode, e) =>
             logBadRequests(mrn, responseCode, e)
-            BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e))))
-          case ParsingError(mrn, responseCode, e)         =>
+            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+          case ParsingError(mrn, responseCode, e) =>
             logBadRequests(mrn, responseCode, e)
-            BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e))))
-          case InvalidMrn(mrn, responseCode, e)           =>
+            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+          case InvalidMrn(mrn, responseCode, e) =>
             logBadRequests(mrn, responseCode, e)
-            BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e))))
-          case UnknownMrn(mrn, responseCode, e)           =>
+            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+          case UnknownMrn(mrn, responseCode, e) =>
             logBadRequests(mrn, responseCode, e)
-            BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e))))
-          case InvalidStateOod(mrn, responseCode, e)      =>
+            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+          case InvalidStateOod(mrn, responseCode, e) =>
             logBadRequests(mrn, responseCode, e)
-            BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e))))
-          case InvalidStateOot(mrn, responseCode, e)      =>
+            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+          case InvalidStateOot(mrn, responseCode, e) =>
             logBadRequests(mrn, responseCode, e)
-            BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e))))
+            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
           case InvalidCustomsOffice(mrn, responseCode, e) =>
             logBadRequests(mrn, responseCode, e)
-            BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e))))
-          case OotNotForCountry(mrn, responseCode, e)     =>
+            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+          case OotNotForCountry(mrn, responseCode, e) =>
             logBadRequests(mrn, responseCode, e)
-            BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e))))
-          case SchemaValidationError                      => returnSchemaValidationError
-          case Eis5xxError                                =>
+            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+          case SchemaValidationError => returnSchemaValidationError
+          case Eis5xxError =>
             Logger.info("NCF returning HTTP status code 500")
-            InternalServerError
+            responseWithCorrelationIdHeader(InternalServerError)
         }
       case JsError(_) =>
         returnSchemaValidationError
     }
   }
 
-  private def returnSchemaValidationError: Result = {
+  private def returnSchemaValidationError()(implicit correlationId: String): Result = {
     Logger.info("NCF returning HTTP status code 400 because payload failed schema validation")
 
-    BadRequest(
-      Json.obj(
-        "errorDetail" -> Json.obj(
-          "timestamp"         -> Json.toJson(Instant.now()),
-          "correlationId"     -> UUID.randomUUID().toString,
-          "errorCode"         -> "400",
-          "errorMessage"      -> "Invalid message",
-          "source"            -> "JSON validation",
-          "sourceFaultDetail" -> Json.obj("detail" -> Json.toJson(Seq("Invalid json payload")))
+    responseWithCorrelationIdHeader(
+      BadRequest(
+        Json.obj(
+          "errorDetail" -> Json.obj(
+            "timestamp"         -> Json.toJson(Instant.now()),
+            "correlationId"     -> UUID.randomUUID().toString,
+            "errorCode"         -> "400",
+            "errorMessage"      -> "Invalid message",
+            "source"            -> "JSON validation",
+            "sourceFaultDetail" -> Json.obj("detail" -> Json.toJson(Seq("Invalid json payload")))
+          )
         )
-      )
-    )
+      ))
   }
 
-  private def logBadRequests(mrn: String, responseCode: Int, errorDescription: String): Unit = Logger.info(s"""NCF returning response code ${responseCode.toString} with error "$errorDescription" and HTTP status code 400 for MRN $mrn""")
+  private def responseWithCorrelationIdHeader(r: Result)(implicit correlationId: String): Result =
+    r.withHeaders("X-Correlation-ID" -> correlationId)
+
+  private def logBadRequests(mrn: String, responseCode: Int, errorDescription: String): Unit =
+    Logger.info(s"""NCF returning response code ${responseCode.toString} with error "$errorDescription" and HTTP status code 400 for MRN $mrn""")
 }
