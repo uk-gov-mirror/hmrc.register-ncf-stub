@@ -41,29 +41,29 @@ class RegisterNcfController @Inject()(appConfig: AppConfig, registerNcfService: 
             Logger.info(s"NCF returning response code $responseCode with HTTP status code 200 for MRN $mrn")
             responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, None))))
           case TechnicalError(mrn, responseCode, e) =>
-            logBadRequests(mrn, responseCode, e)
-            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+            logResponse(mrn, responseCode, e)
+            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
           case ParsingError(mrn, responseCode, e) =>
-            logBadRequests(mrn, responseCode, e)
-            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+            logResponse(mrn, responseCode, e)
+            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
           case InvalidMrn(mrn, responseCode, e) =>
-            logBadRequests(mrn, responseCode, e)
-            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+            logResponse(mrn, responseCode, e)
+            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
           case UnknownMrn(mrn, responseCode, e) =>
-            logBadRequests(mrn, responseCode, e)
-            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+            logResponse(mrn, responseCode, e)
+            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
           case InvalidStateOod(mrn, responseCode, e) =>
-            logBadRequests(mrn, responseCode, e)
-            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+            logResponse(mrn, responseCode, e)
+            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
           case InvalidStateOot(mrn, responseCode, e) =>
-            logBadRequests(mrn, responseCode, e)
-            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+            logResponse(mrn, responseCode, e)
+            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
           case InvalidCustomsOffice(mrn, responseCode, e) =>
-            logBadRequests(mrn, responseCode, e)
-            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+            logResponse(mrn, responseCode, e)
+            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
           case OotNotForCountry(mrn, responseCode, e) =>
-            logBadRequests(mrn, responseCode, e)
-            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+            logResponse(mrn, responseCode, e)
+            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
           case SchemaValidationError => returnSchemaValidationError
           case Eis5xxError =>
             Logger.info("NCF returning HTTP status code 500")
@@ -95,6 +95,6 @@ class RegisterNcfController @Inject()(appConfig: AppConfig, registerNcfService: 
   private def responseWithCorrelationIdHeader(r: Result)(implicit correlationId: String): Result =
     r.withHeaders("X-Correlation-ID" -> correlationId)
 
-  private def logBadRequests(mrn: String, responseCode: Int, errorDescription: String): Unit =
-    Logger.info(s"""NCF returning response code ${responseCode.toString} with error "$errorDescription" and HTTP status code 400 for MRN $mrn""")
+  private def logResponse(mrn: String, responseCode: Int, errorDescription: String): Unit =
+    Logger.info(s"""NCF returning response code ${responseCode.toString} with error "$errorDescription" and HTTP status code 200 for MRN $mrn""")
 }

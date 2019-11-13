@@ -54,83 +54,83 @@ class RegisterNcfControllerSpec extends WordSpec with UnitSpec with Matchers wit
       jsonBodyOf(result) shouldBe expectedResponse
     }
 
-    "Return a 400 response with a technical error body" in {
+    "Return a 200 response with a technical error body" in {
       val requestData      = Json.toJson(NcfRequestData("19GB0000601001FB10", "GB000060"))
       val expectedResponse = Json.toJson(NcfResponse("19GB0000601001FB10", -1, Some("Technical Error occurred")))
 
       val result = await(controller.receiveNcfData(FakeRequest().withBody(requestData)))
 
-      status(result)     shouldBe BAD_REQUEST
+      status(result)     shouldBe OK
       jsonBodyOf(result) shouldBe expectedResponse
     }
 
-    "Return a 400 response with a parsing error body" in {
+    "Return a 200 response with a parsing error body" in {
       val requestData      = Json.toJson(NcfRequestData("19GB0000601001FB01", "GB000060"))
       val expectedResponse = Json.toJson(NcfResponse("19GB0000601001FB01", 1, Some("Parsing Error: Request Message could not be read")))
 
       val result = await(controller.receiveNcfData(FakeRequest().withBody(requestData)))
 
-      status(result)     shouldBe BAD_REQUEST
+      status(result)     shouldBe OK
       jsonBodyOf(result) shouldBe expectedResponse
     }
 
-    "Return a 400 response with an invalid mrn body" in {
+    "Return a 200 response with an invalid mrn body" in {
       val requestData      = Json.toJson(NcfRequestData("19GB0000601001FB02", "GB000060"))
       val expectedResponse = Json.toJson(NcfResponse("19GB0000601001FB02", 2, Some("Invalid MRN")))
 
       val result = await(controller.receiveNcfData(FakeRequest().withBody(requestData)))
 
-      status(result)     shouldBe BAD_REQUEST
+      status(result)     shouldBe OK
       jsonBodyOf(result) shouldBe expectedResponse
     }
 
-    "Return a 400 response with an unknown mrn body" in {
+    "Return a 200 response with an unknown mrn body" in {
       val requestData      = Json.toJson(NcfRequestData("19GB0000601001FB03", "GB000060"))
       val expectedResponse = Json.toJson(NcfResponse("19GB0000601001FB03", 3, Some("Unknown MRN")))
 
       val result = await(controller.receiveNcfData(FakeRequest().withBody(requestData)))
 
-      status(result)     shouldBe BAD_REQUEST
+      status(result)     shouldBe OK
       jsonBodyOf(result) shouldBe expectedResponse
     }
 
-    "Return a 400 response with an invalid state at ood body" in {
+    "Return a 200 response with an invalid state at ood body" in {
       val requestData      = Json.toJson(NcfRequestData("19GB0000601001FB04", "GB000060"))
       val expectedResponse = Json.toJson(NcfResponse("19GB0000601001FB04", 4, Some("Invalid State at Office of Destination")))
 
       val result = await(controller.receiveNcfData(FakeRequest().withBody(requestData)))
 
-      status(result)     shouldBe BAD_REQUEST
+      status(result)     shouldBe OK
       jsonBodyOf(result) shouldBe expectedResponse
     }
 
-    "Return a 400 response with an invalid state at oot body" in {
+    "Return a 200 response with an invalid state at oot body" in {
       val requestData      = Json.toJson(NcfRequestData("19GB0000601001FB05", "GB000060"))
       val expectedResponse = Json.toJson(NcfResponse("19GB0000601001FB05", 5, Some("Invalid State at Office of Transit")))
 
       val result = await(controller.receiveNcfData(FakeRequest().withBody(requestData)))
 
-      status(result)     shouldBe BAD_REQUEST
+      status(result)     shouldBe OK
       jsonBodyOf(result) shouldBe expectedResponse
     }
 
-    "Return a 400 response with an invalid customs office body" in {
+    "Return a 200 response with an invalid customs office body" in {
       val requestData      = Json.toJson(NcfRequestData("19GB0000601001FB06", "GB000060"))
       val expectedResponse = Json.toJson(NcfResponse("19GB0000601001FB06", 6, Some("Invalid Customs Office")))
 
       val result = await(controller.receiveNcfData(FakeRequest().withBody(requestData)))
 
-      status(result)     shouldBe BAD_REQUEST
+      status(result)     shouldBe OK
       jsonBodyOf(result) shouldBe expectedResponse
     }
 
-    "Return a 400 response with an oot not for country body" in {
+    "Return a 200 response with an oot not for country body" in {
       val requestData      = Json.toJson(NcfRequestData("19GB0000601001FB07", "GB000060"))
       val expectedResponse = Json.toJson(NcfResponse("19GB0000601001FB07", 7, Some("Office of Transit does not belong to country")))
 
       val result = await(controller.receiveNcfData(FakeRequest().withBody(requestData)))
 
-      status(result)     shouldBe BAD_REQUEST
+      status(result)     shouldBe OK
       jsonBodyOf(result) shouldBe expectedResponse
     }
 
