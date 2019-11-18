@@ -54,13 +54,13 @@ class RegisterNcfControllerSpec extends WordSpec with UnitSpec with Matchers wit
       jsonBodyOf(result) shouldBe expectedResponse
     }
 
-    "Return a 200 response with a technical error body" in {
+    "Return a 400 response with a technical error body" in {
       val requestData      = Json.toJson(NcfRequestData("19GB0000601001FB10", "GB000060"))
       val expectedResponse = Json.toJson(NcfResponse("19GB0000601001FB10", -1, Some("Technical Error occurred")))
 
       val result = await(controller.receiveNcfData(FakeRequest().withBody(requestData)))
 
-      status(result)     shouldBe OK
+      status(result)     shouldBe BAD_REQUEST
       jsonBodyOf(result) shouldBe expectedResponse
     }
 

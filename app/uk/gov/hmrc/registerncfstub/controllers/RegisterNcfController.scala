@@ -41,8 +41,8 @@ class RegisterNcfController @Inject()(appConfig: AppConfig, registerNcfService: 
             Logger.info(s"NCF returning response code $responseCode with HTTP status code 200 for MRN $mrn")
             responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, None))))
           case TechnicalError(mrn, responseCode, e) =>
-            logResponse(mrn, responseCode, e)
-            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+            logResponse(mrn, responseCode, e, 400)
+            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
           case ParsingError(mrn, responseCode, e) =>
             logResponse(mrn, responseCode, e)
             responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
@@ -95,6 +95,6 @@ class RegisterNcfController @Inject()(appConfig: AppConfig, registerNcfService: 
   private def responseWithCorrelationIdHeader(r: Result)(implicit correlationId: String): Result =
     r.withHeaders("X-Correlation-ID" -> correlationId)
 
-  private def logResponse(mrn: String, responseCode: Int, errorDescription: String): Unit =
-    Logger.info(s"""NCF returning response code ${responseCode.toString} with error "$errorDescription" and HTTP status code 200 for MRN $mrn""")
+  private def logResponse(mrn: String, responseCode: Int, errorDescription: String, httpStatusCode: Int = 200): Unit =
+    Logger.info(s"""NCF returning response code ${responseCode.toString} with error "$errorDescription" and HTTP status code ${httpStatusCode.toString} for MRN $mrn""")
 }
