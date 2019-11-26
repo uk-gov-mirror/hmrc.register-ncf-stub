@@ -24,7 +24,7 @@ import uk.gov.hmrc.registerncfstub.model._
 class RegisterNcfService @Inject()(appConfig: AppConfig) {
 
   def processRegisterNcfRequest(ncfRequestData: NcfRequestData): NcfResult =
-    ncfRequestData.MRN.takeRight(2) match {
+    ncfRequestData.MRN.dropRight(1).takeRight(2) match {
       case "00" => CompletedSuccessfully(ncfRequestData.MRN)
       case "10" => TechnicalError(ncfRequestData.MRN)
       case "01" => ParsingError(ncfRequestData.MRN)
@@ -38,5 +38,4 @@ class RegisterNcfService @Inject()(appConfig: AppConfig) {
       case "50" => Eis5xxError
       case _    => CompletedSuccessfully(ncfRequestData.MRN)
     }
-
 }

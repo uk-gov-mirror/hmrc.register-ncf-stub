@@ -13,11 +13,11 @@ This code is open source software licensed under the [Apache 2.0 License]("http:
 Returns the result of the register NCF process in form of the MRN and a response code, along with an error description if there is an error.
 
 ####Happy path:
-To trigger the happy path, ensure you provide a valid request body with an MRN that ends in '00'.
+To trigger the happy path, ensure you provide a valid request body with an MRN containing digits '00' in positions 16 and 17 (with the appropriate check digit as the final, 18th character of the MRN).
 ```
 Request Body example:
 {
-    "MRN": "18GB0000601001EB00",
+    "MRN": "19FR00012399999009",
     "Office":"GB000011"
 }
 ```
@@ -27,18 +27,19 @@ Request Body example:
 ```
 Response body example:
 {
-    "MRN": "18GB0000601001EB00",
+    "MRN": "19FR00012399999009",
     "ResponseCode": 0
 }
 ```
 
 ####Unhappy path:
-To trigger the unhappy paths, ensure you provide a valid request body with an MRN that ends in any of the following 2 digits for each scenario.
+To trigger the unhappy paths, ensure you provide a valid request body with an MRN containing specific digits in positions 16 and 17 (with the appropriate check digit as the final, 18th character of the MRN).
+The following request will trigger ResponseCode -1 with HTTP status 400:
 
 ```
 Request Body example:
 {
-    "MRN": "18GB0000601001EB10",
+    "MRN": "19FR00012399999108",
     "Office":"GB000011"
 }
 ```
@@ -48,13 +49,13 @@ Request Body example:
 ```
 Response body example:
 {
-    "MRN": "18GB0000601001EB10",
+    "MRN": "19FR00012399999108",
     "ResponseCode": -1,
     "ErrorDescription": "Technical Error occurred"
 }
 ```
 
-Below are the different unhappy path scenarios:
+Below are the different unhappy path scenarios and the digits to use in positions 16 and 17 of the MRN:
 
 | *Scenario* | *Digits* |
 |--------|----|
@@ -74,10 +75,9 @@ In the case where there is a problem with EIS, we will receive a 5xx response fr
 ```
 Request Body example:
 {
-    "MRN": "18GB0000601001EB50",
+    "MRN": "19FR00012399999504",
     "Office":"GB000011"
 }
 ```
 
 > Response status: 500
-
