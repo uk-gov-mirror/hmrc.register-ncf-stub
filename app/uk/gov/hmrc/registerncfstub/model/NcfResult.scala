@@ -30,4 +30,4 @@ case class InvalidCustomsOffice(mrn: String, responseCode: Int = 6, errorDescrip
 case class OotNotForCountry(mrn:     String, responseCode: Int = 7, errorDescription: String = "Office of Transit does not belong to country")
     extends NcfResult
 case object SchemaValidationError extends NcfResult
-case object Eis5xxError extends NcfResult
+case object Eis500Error extends NcfResult

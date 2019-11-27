@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.registerncfstub.services
 
+import play.api.Logger
+
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.registerncfstub.config.AppConfig
 import uk.gov.hmrc.registerncfstub.model._
@@ -35,7 +37,12 @@ class RegisterNcfService @Inject()(appConfig: AppConfig) {
       case "06" => InvalidCustomsOffice(ncfRequestData.MRN)
       case "07" => OotNotForCountry(ncfRequestData.MRN)
       case "40" => SchemaValidationError
-      case "50" => Eis5xxError
+      case "50" => Eis500Error
+      case "54" => {
+        Logger.info("Request to EIS is due to time out....")
+        Thread.sleep(100000000)
+        CompletedSuccessfully(ncfRequestData.MRN)
+      }
       case _    => CompletedSuccessfully(ncfRequestData.MRN)
     }
 }

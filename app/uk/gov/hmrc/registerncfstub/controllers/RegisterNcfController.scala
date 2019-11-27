@@ -25,7 +25,7 @@ import play.api.libs.json._
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import uk.gov.hmrc.registerncfstub.config.AppConfig
-import uk.gov.hmrc.registerncfstub.model.{Eis5xxError, _}
+import uk.gov.hmrc.registerncfstub.model._
 import uk.gov.hmrc.registerncfstub.services.RegisterNcfService
 @Singleton
 class RegisterNcfController @Inject()(appConfig: AppConfig, registerNcfService: RegisterNcfService, cc: ControllerComponents)
@@ -65,7 +65,7 @@ class RegisterNcfController @Inject()(appConfig: AppConfig, registerNcfService: 
             logResponse(mrn, responseCode, e)
             responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
           case SchemaValidationError => returnSchemaValidationError
-          case Eis5xxError =>
+          case Eis500Error =>
             Logger.info("NCF returning HTTP status code 500")
             responseWithCorrelationIdHeader(InternalServerError)
         }

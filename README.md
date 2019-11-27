@@ -69,8 +69,8 @@ Below are the different unhappy path scenarios and the digits to use in position
 | Invalid customs office | 06 |
 | Office of transit does not belong to country | 07 |
 
-###EIS 5xx error:
-In the case where there is a problem with EIS, we will receive a 5xx response from them. In order to trigger this scenario, supply an MRN with '50' at the end.
+###EIS 500 error:
+In the case where there is a problem with EIS, we will receive a 5xx response from them. In order to trigger this scenario, supply an MRN with '50' in positions 16 and 17 of the MRN.
 
 ```
 Request Body example:
@@ -81,3 +81,6 @@ Request Body example:
 ```
 
 > Response status: 500
+
+###EIS timeout:
+To trigger a timeout at EIS, supply an MRN with '54' in positions 16 and 17 of the MRN, e.g. 19GB00006510999549. 
