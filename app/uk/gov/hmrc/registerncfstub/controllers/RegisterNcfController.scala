@@ -27,6 +27,8 @@ import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import uk.gov.hmrc.registerncfstub.config.AppConfig
 import uk.gov.hmrc.registerncfstub.model._
 import uk.gov.hmrc.registerncfstub.services.RegisterNcfService
+import scala.util.Random
+
 @Singleton
 class RegisterNcfController @Inject()(appConfig: AppConfig, registerNcfService: RegisterNcfService, cc: ControllerComponents)
     extends BackendController(cc) {
@@ -36,6 +38,7 @@ class RegisterNcfController @Inject()(appConfig: AppConfig, registerNcfService: 
 
     request.body.validate[NcfRequestData] match {
       case JsSuccess(t, _) =>
+        Thread.sleep(Random.nextInt(5000))
         registerNcfService.processRegisterNcfRequest(t) match {
           case CompletedSuccessfully(mrn, responseCode) =>
             Logger.info(s"NCF returning response code $responseCode with HTTP status code 200 for MRN $mrn")
@@ -96,5 +99,6 @@ class RegisterNcfController @Inject()(appConfig: AppConfig, registerNcfService: 
     r.withHeaders("X-Correlation-ID" -> correlationId)
 
   private def logResponse(mrn: String, responseCode: Int, errorDescription: String, httpStatusCode: Int = 200): Unit =
-    Logger.info(s"""NCF returning response code ${responseCode.toString} with error "$errorDescription" and HTTP status code ${httpStatusCode.toString} for MRN $mrn""")
+    Logger.info(
+      s"""NCF returning response code ${responseCode.toString} with error "$errorDescription" and HTTP status code ${httpStatusCode.toString} for MRN $mrn""")
 }
