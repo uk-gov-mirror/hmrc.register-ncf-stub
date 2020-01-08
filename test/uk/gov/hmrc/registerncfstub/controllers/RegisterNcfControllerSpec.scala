@@ -19,6 +19,7 @@ package uk.gov.hmrc.registerncfstub.controllers
 import java.time.Instant
 import java.util.UUID
 
+import akka.actor.ActorSystem
 import akka.stream.Materializer
 import org.scalatest.{Matchers, WordSpec}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -29,7 +30,7 @@ import play.api.{Configuration, Environment, Mode}
 import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.registerncfstub.config.AppConfig
-import uk.gov.hmrc.registerncfstub.model.{NcfRequestData, NcfResponse, TechnicalError}
+import uk.gov.hmrc.registerncfstub.model.{NcfRequestData, NcfResponse}
 import uk.gov.hmrc.registerncfstub.services.RegisterNcfService
 
 class RegisterNcfControllerSpec extends WordSpec with UnitSpec with Matchers with GuiceOneAppPerSuite {
@@ -40,8 +41,11 @@ class RegisterNcfControllerSpec extends WordSpec with UnitSpec with Matchers wit
 
   private val serviceConfig = new ServicesConfig(configuration, new RunMode(configuration, Mode.Dev))
   private val appConfig     = new AppConfig(configuration, serviceConfig)
+  private val sCC           = play.api.test.Helpers.stubControllerComponents()
+  private val actorSystem: ActorSystem = ActorSystem()
+  private val registerNcfService = new RegisterNcfService(appConfig)
 
-  private val controller = new RegisterNcfController(appConfig, app.injector.instanceOf[RegisterNcfService], Helpers.stubControllerComponents())
+  private val controller = new RegisterNcfController(actorSystem: ActorSystem, appConfig: AppConfig, registerNcfService: RegisterNcfService, sCC)
 
   "receiveNcfData" should {
     "Return a success response if the NCF process is successful" in {

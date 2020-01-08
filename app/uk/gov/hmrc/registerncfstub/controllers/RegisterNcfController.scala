@@ -19,6 +19,8 @@ package uk.gov.hmrc.registerncfstub.controllers
 import java.time.Instant
 import java.util.UUID
 
+import akka.actor.ActorSystem
+import akka.actor.Scheduler
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.libs.json._
@@ -27,50 +29,65 @@ import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import uk.gov.hmrc.registerncfstub.config.AppConfig
 import uk.gov.hmrc.registerncfstub.model._
 import uk.gov.hmrc.registerncfstub.services.RegisterNcfService
+import uk.gov.hmrc.registerncfstub.util.Delays
+import uk.gov.hmrc.registerncfstub.util.Delays.DelayConfig
+
+import scala.concurrent.ExecutionContext
+
 @Singleton
-class RegisterNcfController @Inject()(appConfig: AppConfig, registerNcfService: RegisterNcfService, cc: ControllerComponents)
-    extends BackendController(cc) {
+class RegisterNcfController @Inject()(
+  actorSystem:        ActorSystem,
+  appConfig:          AppConfig,
+  registerNcfService: RegisterNcfService,
+  cc:                 ControllerComponents)(implicit ec: ExecutionContext = ExecutionContext.Implicits.global)
+    extends BackendController(cc)
+    with Delays {
 
-  def receiveNcfData: Action[JsValue] = Action(parse.json) { implicit request =>
-    implicit val correlationId: String = request.headers.get("X-Correlation-ID").getOrElse("-")
+  val scheduler:         Scheduler   = actorSystem.scheduler
+  val ncfAPIDelayConfig: DelayConfig = Delays.config("ncfAPIDelay", actorSystem.settings.config)
 
-    request.body.validate[NcfRequestData] match {
-      case JsSuccess(t, _) =>
-        registerNcfService.processRegisterNcfRequest(t) match {
-          case CompletedSuccessfully(mrn, responseCode) =>
-            Logger.info(s"NCF returning response code $responseCode with HTTP status code 200 for MRN $mrn")
-            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, None))))
-          case TechnicalError(mrn, responseCode, e) =>
-            logResponse(mrn, responseCode, e, 400)
-            responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
-          case ParsingError(mrn, responseCode, e) =>
-            logResponse(mrn, responseCode, e)
-            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
-          case InvalidMrn(mrn, responseCode, e) =>
-            logResponse(mrn, responseCode, e)
-            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
-          case UnknownMrn(mrn, responseCode, e) =>
-            logResponse(mrn, responseCode, e)
-            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
-          case InvalidStateOod(mrn, responseCode, e) =>
-            logResponse(mrn, responseCode, e)
-            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
-          case InvalidStateOot(mrn, responseCode, e) =>
-            logResponse(mrn, responseCode, e)
-            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
-          case InvalidCustomsOffice(mrn, responseCode, e) =>
-            logResponse(mrn, responseCode, e)
-            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
-          case OotNotForCountry(mrn, responseCode, e) =>
-            logResponse(mrn, responseCode, e)
-            responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
-          case SchemaValidationError => returnSchemaValidationError
-          case Eis500Error =>
-            Logger.info("NCF returning HTTP status code 500")
-            responseWithCorrelationIdHeader(InternalServerError)
-        }
-      case JsError(_) =>
-        returnSchemaValidationError
+  def receiveNcfData: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    withDelay(ncfAPIDelayConfig) { () =>
+      implicit val correlationId: String = request.headers.get("X-Correlation-ID").getOrElse("-")
+
+      request.body.validate[NcfRequestData] match {
+        case JsSuccess(t, _) =>
+          registerNcfService.processRegisterNcfRequest(t) match {
+            case CompletedSuccessfully(mrn, responseCode) =>
+              Logger.info(s"NCF returning response code $responseCode with HTTP status code 200 for MRN $mrn")
+              responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, None))))
+            case TechnicalError(mrn, responseCode, e) =>
+              logResponse(mrn, responseCode, e, 400)
+              responseWithCorrelationIdHeader(BadRequest(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+            case ParsingError(mrn, responseCode, e) =>
+              logResponse(mrn, responseCode, e)
+              responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+            case InvalidMrn(mrn, responseCode, e) =>
+              logResponse(mrn, responseCode, e)
+              responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+            case UnknownMrn(mrn, responseCode, e) =>
+              logResponse(mrn, responseCode, e)
+              responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+            case InvalidStateOod(mrn, responseCode, e) =>
+              logResponse(mrn, responseCode, e)
+              responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+            case InvalidStateOot(mrn, responseCode, e) =>
+              logResponse(mrn, responseCode, e)
+              responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+            case InvalidCustomsOffice(mrn, responseCode, e) =>
+              logResponse(mrn, responseCode, e)
+              responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+            case OotNotForCountry(mrn, responseCode, e) =>
+              logResponse(mrn, responseCode, e)
+              responseWithCorrelationIdHeader(Ok(Json.toJson(NcfResponse(mrn, responseCode, Some(e)))))
+            case SchemaValidationError => returnSchemaValidationError
+            case Eis500Error =>
+              Logger.info("NCF returning HTTP status code 500")
+              responseWithCorrelationIdHeader(InternalServerError)
+          }
+        case JsError(_) =>
+          returnSchemaValidationError
+      }
     }
   }
 
@@ -96,5 +113,6 @@ class RegisterNcfController @Inject()(appConfig: AppConfig, registerNcfService: 
     r.withHeaders("X-Correlation-ID" -> correlationId)
 
   private def logResponse(mrn: String, responseCode: Int, errorDescription: String, httpStatusCode: Int = 200): Unit =
-    Logger.info(s"""NCF returning response code ${responseCode.toString} with error "$errorDescription" and HTTP status code ${httpStatusCode.toString} for MRN $mrn""")
+    Logger.info(
+      s"""NCF returning response code ${responseCode.toString} with error "$errorDescription" and HTTP status code ${httpStatusCode.toString} for MRN $mrn""")
 }

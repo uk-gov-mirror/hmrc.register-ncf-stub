@@ -43,6 +43,6 @@ class RegisterNcfService @Inject()(appConfig: AppConfig) {
         Thread.sleep(100000000)
         CompletedSuccessfully(ncfRequestData.MRN)
       }
-      case _    => CompletedSuccessfully(ncfRequestData.MRN)
+      case _ => CompletedSuccessfully(ncfRequestData.MRN)
     }
 }
