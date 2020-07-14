@@ -52,6 +52,12 @@ class RegisterNcfController @Inject()(
 
       request.body.validate[NcfRequestData] match {
         case JsSuccess(t, _) =>
+          if (t.Office.startsWith("XI"))
+            Logger.info("Received request with NI office code")
+          else {
+            Logger.info("Received request with GB office code")
+          }
+
           registerNcfService.processRegisterNcfRequest(t) match {
             case CompletedSuccessfully(mrn, responseCode) =>
               Logger.info(s"NCF returning response code $responseCode with HTTP status code 200 for MRN $mrn")
