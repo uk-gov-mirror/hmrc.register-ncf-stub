@@ -16,16 +16,13 @@
 
 package uk.gov.hmrc.registerncfstub.controllers
 
-import java.time.Instant
-import java.util.UUID
-
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import org.scalatest.{Matchers, WordSpec}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.test.{FakeRequest, Helpers}
+import play.api.test.FakeRequest
 import play.api.{Configuration, Environment, Mode}
 import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 import uk.gov.hmrc.play.test.UnitSpec
