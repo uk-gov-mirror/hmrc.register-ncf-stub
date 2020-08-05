@@ -18,6 +18,8 @@ lazy val microservice = Project(appName, file("."))
     playDefaultPort := 8269
   )
   .settings(publishingSettings: _*)
+  .settings(scalaVersion := "2.12.11")
   .configs(IntegrationTest)
   .settings(integrationTestSettings(): _*)
   .settings(resolvers += Resolver.jcenterRepo)
+  .disablePlugins(JUnitXmlReportPlugin)
