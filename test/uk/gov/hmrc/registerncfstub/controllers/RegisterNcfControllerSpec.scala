@@ -23,8 +23,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import play.api.{Configuration, Environment, Mode}
-import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
+import play.api.{Configuration, Environment}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.registerncfstub.config.AppConfig
 import uk.gov.hmrc.registerncfstub.model.{NcfRequestData, NcfResponse}
@@ -36,7 +36,7 @@ class RegisterNcfControllerSpec extends WordSpec with UnitSpec with Matchers wit
   private val env           = Environment.simple()
   private val configuration = Configuration.load(env)
 
-  private val serviceConfig = new ServicesConfig(configuration, new RunMode(configuration, Mode.Dev))
+  private val serviceConfig = new ServicesConfig(configuration)
   private val appConfig     = new AppConfig(configuration, serviceConfig)
   private val sCC           = play.api.test.Helpers.stubControllerComponents()
   private val actorSystem: ActorSystem = ActorSystem()

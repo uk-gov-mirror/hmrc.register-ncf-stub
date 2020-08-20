@@ -19,13 +19,12 @@ package uk.gov.hmrc.registerncfstub.controllers
 import java.time.Instant
 import java.util.UUID
 
-import akka.actor.ActorSystem
-import akka.actor.Scheduler
+import akka.actor.{ActorSystem, Scheduler}
 import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.libs.json._
 import play.api.mvc._
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.registerncfstub.config.AppConfig
 import uk.gov.hmrc.registerncfstub.model._
 import uk.gov.hmrc.registerncfstub.services.RegisterNcfService
