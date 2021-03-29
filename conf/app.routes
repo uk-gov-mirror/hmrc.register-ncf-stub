@@ -1,4 +1,5 @@
 # microservice specific routes
 
-POST        /ctc/registerncf/v1           uk.gov.hmrc.registerncfstub.controllers.RegisterNcfController.receiveNcfData
-POST        /ctc/registerncfni/v1        uk.gov.hmrc.registerncfstub.controllers.RegisterNcfController.receiveNcfData
+POST        /ctc/registerncf/v1                                 uk.gov.hmrc.registerncfstub.controllers.RegisterNcfController.receiveNcfData
+POST        /goods-vehicle-movement-system/gb/registerncf/v1    uk.gov.hmrc.registerncfstub.controllers.RegisterNcfController.receiveNcfData
+POST        /ctc/registerncfni/v1                               uk.gov.hmrc.registerncfstub.controllers.RegisterNcfController.receiveNcfData
