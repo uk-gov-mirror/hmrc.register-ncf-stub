@@ -37,6 +37,7 @@ class RegisterNcfService @Inject()(appConfig: AppConfig) {
       case "06" => InvalidCustomsOffice(ncfRequestData.MRN)
       case "07" => OotNotForCountry(ncfRequestData.MRN)
       case "40" => SchemaValidationError
+      case "41" => CompletedSuccessfully("THREADINGISSUEMRN")
       case "50" => Eis500Error
       case "54" => {
         Logger.info("Request to EIS is due to time out....")
