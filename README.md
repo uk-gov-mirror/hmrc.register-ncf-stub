@@ -68,6 +68,7 @@ Below are the different unhappy path scenarios and the digits to use in position
 | Invalid state at office of transit | 05 |
 | Invalid customs office | 06 |
 | Office of transit does not belong to country | 07 |
+| MRN Mismatch | 41 |
 
 ###EIS 500 error:
 In the case where there is a problem with EIS, we will receive a 5xx response from them. In order to trigger this scenario, supply an MRN with '50' in positions 16 and 17 of the MRN.
